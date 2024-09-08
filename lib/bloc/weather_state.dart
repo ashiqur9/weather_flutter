@@ -19,4 +19,6 @@ final class WeatherSuccess extends WeatherState {
   const WeatherSuccess({required this.weather});
   @override
   List<Object> get props => [weather];
+
+  getGreeting() {}
 }

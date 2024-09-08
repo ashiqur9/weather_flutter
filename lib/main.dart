@@ -28,10 +28,10 @@ class _MyAppState extends State<MyApp> {
             return BlocProvider<WeatherBloc>(
               create: (context) => WeatherBloc()
                 ..add(FetchWeather(position: snapshot.data as Position)),
-              child: HomeScreen(),
+              child: const HomeScreen(),
             );
           } else {
-            return Scaffold(
+            return const Scaffold(
               body: Center(
                 child: CircularProgressIndicator(),
               ),

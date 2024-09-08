@@ -3,6 +3,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:weather_flutter/bloc/weather_bloc.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,91 +15,110 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String getGreeting() {
+  // Get the current hour
+  DateTime now = DateTime.now();
+  int hour = now.hour;
+
+  // Determine the appropriate greeting based on the time
+  if (hour >= 5 && hour < 12) {
+    return 'Good Morning';
+  } else if (hour >= 12 && hour < 17) {
+    return 'Good Afternoon';
+  } else if (hour >= 17 && hour < 20) {
+    return 'Good Evening';
+  } else {
+    return 'Good Night';
+  }
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         systemOverlayStyle:
-            SystemUiOverlayStyle(statusBarBrightness: Brightness.dark),
+            const SystemUiOverlayStyle(statusBarBrightness: Brightness.dark),
         backgroundColor: Colors.transparent,
       ),
       body: Padding(
-        padding: EdgeInsets.fromLTRB(40, 1.2 * kToolbarHeight, 40, 20),
+        padding: const EdgeInsets.fromLTRB(40, 1.2 * kToolbarHeight, 40, 20),
         child: SizedBox(
           height: MediaQuery.of(context).size.height,
           child: Stack(
             children: [
               Align(
-                alignment: AlignmentDirectional(3, -0.3),
+                alignment: const AlignmentDirectional(3, -0.3),
                 child: Container(
                   height: 300,
                   width: 300,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                       shape: BoxShape.circle, color: Colors.deepPurple),
                 ),
               ),
               Align(
-                alignment: AlignmentDirectional(-3, -0.3),
+                alignment: const AlignmentDirectional(-3, -0.3),
                 child: Container(
                   height: 300,
                   width: 300,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                       shape: BoxShape.circle, color: Colors.deepPurple),
                 ),
               ),
               Align(
-                alignment: AlignmentDirectional(0, -1.2),
+                alignment: const AlignmentDirectional(0, -1.2),
                 child: Container(
                   height: 300,
                   width: 600,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                       shape: BoxShape.rectangle, color: Color(0xFFFEA33F)),
                 ),
               ),
               BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 100.0, sigmaY: 100.0),
                 child: Container(
-                  decoration: BoxDecoration(color: Colors.transparent),
+                  decoration: const BoxDecoration(color: Colors.transparent),
                 ),
               ),
-              SizedBox(
+              BlocBuilder<WeatherBloc, WeatherState>(builder: (context,state){
+                if(state is WeatherSuccess){
+                  return SizedBox(
                 height: MediaQuery.of(context).size.height,
                 width: MediaQuery.of(context).size.width,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Align(alignment: Alignment.topLeft, child: Text('Dhaka')),
+                    Align(alignment: Alignment.topLeft, child: Text('${state.weather.areaName}')),
                     Align(
                       alignment: Alignment.topLeft,
                       child: Text(
-                        'Good Morning',
-                        style: TextStyle(
+                        getGreeting(),
+                        style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 25,
                             color: Colors.white),
                       ),
                     ),
                     Image.asset(
-                      'assets/3.png',
-                      scale: 2,
+                      'assets/${state.weather.weatherConditionCode! ~/100}.png',
+                      scale: 3,
                     ),
                     Text(
-                      '25ºC',
-                      style: TextStyle(
+                      '${state.weather.temperature!.celsius!.round()}°C',
+                      style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 35,
                           color: Colors.white),
                     ),
                     Text(
-                      'Raining',
-                      style: TextStyle(
+                      '${state.weather.weatherMain}',
+                      style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 30,
                           color: Colors.white),
                     ),
-                    Text('Sunday 8 8:42 p.m'),
-                    SizedBox(height: 8),
+                    Text(DateFormat('EEEE h a').format(DateTime.now())),
+                    const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -106,11 +128,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               'assets/6.png',
                               scale: 8,
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 5,
                             ),
                             Column(
-                              children: [Text('Sunrise'), Text('5 a.m')],
+                              children: [const Text('Sunrise'), Text('${state.weather.sunrise!.hour}:${state.weather.sunrise!.minute}')],
                             )
                           ],
                         ),
@@ -120,17 +142,17 @@ class _HomeScreenState extends State<HomeScreen> {
                               'assets/12.png',
                               scale: 8,
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 5,
                             ),
                             Column(
-                              children: [Text('Sunset'), Text('6 p.m')],
+                              children: [const Text('Sunset'), Text('${state.weather.sunset!.hour}:${state.weather.sunset!.minute}')],
                             )
                           ],
                         ),
                       ],
                     ),
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.symmetric(vertical: 5),
                       child: Divider(
                         color: Colors.grey,
@@ -145,11 +167,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               'assets/13.png',
                               scale: 8,
                             ),
-                            SizedBox(
+                            const SizedBox(
                                 //width: 5,
                                 ),
                             Column(
-                              children: [Text('Temp Max'), Text('35ºC')],
+                              children: [const Text('Temp Max'), Text('${state.weather.tempMax!.celsius!.round()}ºC')],
                             )
                           ],
                         ),
@@ -159,11 +181,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               'assets/14.png',
                               scale: 8,
                             ),
-                            SizedBox(
+                            const SizedBox(
                                 //width: 5,
                                 ),
                             Column(
-                              children: [Text('Temp Min'), Text('30ºC')],
+                              children: [const Text('Temp Min'), Text('${state.weather.tempMin!.celsius!.round()}ºC')],
                             )
                           ],
                         ),
@@ -171,7 +193,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
-              )
+              );
+                }
+                else{
+                  return Container();
+                }
+              },)
             ],
           ),
         ),
